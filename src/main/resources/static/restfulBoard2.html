@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+<script type="text/javascript">
+	$(document).ready(function(){
+	   
+		/*
+		$.ajax({
+		     type : `http method type`,
+		     url : `url`,
+		     data : `서버에 전송할 데이터`,
+		     contentType : "전송할 데이터 타입",
+		     //기본 값 : "application / x-www-form-urlencoded; charset = UTF-8"  
+		     dataType : '서버로 부터 수신할 데이터 타입',
+		     //아무것도 지정하지 않으면 jQuery는 응답의 MIME 유형을 기반으로 해석을 시도
+		     error : `에러 발생시 수행할 함수`,
+		     success : `성공시 수행할 함수`
+		});
+		*/
+	
+		$.ajax({ 
+			type: "GET",
+			url : "https://sample.bmaster.kro.kr/contacts?pageno=3&pagesize=10", //http://localhost:8282/boards/list
+			success : function(result) { 
+			  
+				console.log(result);
+				 
+				var htmls = "";
+				$("#list-table").html("");
+				  
+				$("<tr>" , {
+					html : "<td>" + "번호" + "</td>"+  // 컬럼명들
+					       "<td>" + "이름" + "</td>"+
+				 	       "<td>" + "전화번호" + "</td>"+
+					       "<td>" + "주소" + "</td>"+            
+					       "<td>" + "사진" + "</td>"+
+					       "<td>" + "삭제" + "</td>"
+				}).appendTo("#list-table")
+		     			 
+				$(result.contacts).each(function(){                                                          
+					htmls += '<tr>';
+					htmls += '<td>'+ this.no + '</td>';
+					htmls += '<td>'+ this.name + '</td>';
+					htmls += '<td>'+ this.tel + '</td>';
+					htmls += '<td>'+ this.address + '</td>'; 
+					htmls += '<td><img src="'+ this.photo + '"></td>';
+					htmls += '<td>'+ '<input id=' + this.no + " type='button' class='btn_delete' value='삭제'>" + '</td>';
+					htmls += '</tr>';                                                      
+				});   //each end
+				
+				         
+				$("#list-table").append(htmls);                   
+			                     
+			}, 
+			error : function(xhr, textStatus, errorThrown){ 
+				alert(xhr);
+				alert(textStatus);  
+				alert(errorThrown);
+			}
+		});
+	});
+	
+	//2번째 방법
+	/* $(document).ready(function() {
+
+		$.ajax({
+		    type : "GET",
+		    url : "http://sample.bmaster.kro.kr/contacts?pageno=3&pagesize=10",
+		    success: function (result) {
+		    
+			console.log(result);
+			
+			$("#list-table").append(
+			    $("<tr></tr>")
+			    .append($("<td></td>").text("번호"))
+				.append($("<td></td>").text("이름"))
+				.append($("<td></td>").text("전화번호"))
+				.append($("<td></td>").text("주소"))
+				.append($("<td></td>").text("사진"))
+				.append($("<td></td>").text("삭제"))     
+			);
+			
+			$(result.contacts).each(function(){
+				$("#list-table").append(
+					$("<tr></tr>")
+						.append($("<td></td>").text(this.no))
+						.append($("<td></td>").text(this.name))
+						.append($("<td></td>").text(this.tel))
+						.append($("<td></td>").text(this.address))
+						.append($("<td></td>").append($("<img></img>").attr("src",this.photo)))
+						.append($("<td></td>").append($("<input></input>").attr("id",this.no).attr("type","button").attr("class","del-button").attr("value","삭제")  ))     
+					);
+				});
+		    },
+		    error: function (e) {
+		        console.log(e);
+		    }
+		});
+	}); */
+</script>
+
+</head>
+
+<body>
+	<table id="list-table" width="500" border="1">
+	</table>
+</body>
+
+</html>

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- mapper 경로지정 -->
+<mapper namespace="edu.global.ex.mapper.BoardMapper">
+    
+    <!-- id : Mapper interface의 메소드명 / resultType : VO  -->
+    <!-- properties 파일에 mybatis.type-aliases-package=edu.global.ex.vo 에 설정되있으므로 패키지 Path 생략가능 -->
+	<select id="getList" resultType="BoardVO">
+		<![CDATA[
+			SELECT * FROM MVC_BOARD ORDER BY BGROUP DESC, BSTEP ASC
+		]]>
+	</select>
+	
+	<insert id="insert">
+		<![CDATA[
+			INSERT INTO MVC_BOARD (BID, BNAME, BTITLE, BCONTENT, BHIT, BGROUP, BSTEP, BINDENT) 
+            VALUES (MVC_BOARD_SEQ.NEXTVAL, #{bname}, #{btitle}, #{bcontent}, 0, MVC_BOARD_SEQ.CURRVAL, 0, 0) 
+		]]>
+	</insert>
+	
+	<select id="read" resultType="BoardVO">
+		<![CDATA[
+			SELECT * FROM MVC_BOARD WHERE BID = #{bid}
+		]]>
+	</select>
+	
+	<delete id="delete">
+		<![CDATA[
+			DELETE FROM MVC_BOARD WHERE BID = #{bid}
+		]]>
+	</delete>
+	
+	<update id="hit">
+		<![CDATA[
+			UPDATE MVC_BOARD SET BHIT = BHIT + 1 WHERE BID = #{bid}
+		]]>
+	</update>
+	
+	<select id="reply_view" resultType="BoardVO">
+		<![CDATA[
+			SELECT * FROM MVC_BOARD WHERE BID = #{bid}
+		]]>
+	</select>
+	
+	<update id="reply_shape">
+		<![CDATA[
+			UPDATE MVC_BOARD SET BSTEP = BSTEP + 1 WHERE BGROUP = #{bgroup} AND BSTEP > #{bstep}
+		]]>
+	</update>
+	
+	<insert id="reply">
+		<![CDATA[
+			INSERT INTO MVC_BOARD (BID, BNAME, BTITLE, BCONTENT, BGROUP, BSTEP, BINDENT) 
+			VALUES (MVC_BOARD_SEQ.NEXTVAL, #{bname}, #{btitle}, #{bcontent}, #{bgroup}, #{bstep}+1, #{bindent}+1)
+		]]>
+	</insert>
+	
+	<update id="update">
+		<![CDATA[
+			UPDATE MVC_BOARD SET BNAME = #{bname}, BTITLE = #{btitle}, BCONTENT = #{bcontent} WHERE BID = #{bid}
+		]]>
+	</update>
+	
+	<!-- paging -->
+	<select id="getTotalCount" resultType="int">
+		<![CDATA[
+		SELECT COUNT(*) FROM MVC_BOARD 
+		]]>
+		<include refid="criteria"></include>
+	</select>
+	
+	<select id="getListWithPaging" resultType="BoardVO">
+		<![CDATA[
+			SELECT * FROM (
+    			SELECT ROWNUM AS RNUM, A.* FROM (
+        			SELECT * FROM MVC_BOARD 
+        			]]>
+        			<include refid="criteria"></include>
+					<![CDATA[
+        			ORDER BY BGROUP DESC, BSTEP ASC
+    			) A WHERE ROWNUM <= #{pageNum} * #{amount}
+         	) WHERE RNUM > (#{pageNum}-1) * #{amount}
+		]]>
+	</select>
+
+    <sql id="criteria">
+    	<if test="type eq 'T'.toString()">
+    		 WHERE btitle LIKE '%'||#{keyword}||'%' 
+    	</if>
+    	<if test="type eq 'C'.toString()">
+    		 WHERE bcontent LIKE '%'||#{keyword}||'%' 
+    	</if>
+    	<if test="type eq 'N'.toString()">
+    		 WHERE bname LIKE '%'||#{keyword}||'%' 
+    	</if>
+    </sql>
+    
+</mapper>

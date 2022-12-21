@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+<script type="text/javascript">
+	$(document).ready(function(){
+
+		/*
+		$.ajax({
+		     type : `http method type`,
+		     url : `url`,
+		     data : `서버에 전송할 데이터`,
+		     contentType : "전송할 데이터 타입",
+		     //기본 값 : "application / x-www-form-urlencoded; charset = UTF-8"  
+		     dataType : '서버로 부터 수신할 데이터 타입',
+		     //아무것도 지정하지 않으면 jQuery는 응답의 MIME 유형을 기반으로 해석을 시도
+		     error : `에러 발생시 수행할 함수`,
+		     success : `성공시 수행할 함수`
+		});
+		*/
+
+		$.ajax({
+			type: "GET",
+			url : "/boards/list", //http://localhost:8282/boards/list
+			success : function(result) {
+
+				console.log(result);
+
+				var htmls = "";
+				$("#list-table").html("");
+
+				$("<tr>" , {
+					html : "<td>" + "번호" + "</td>"+  // 컬럼명들
+					       "<td>" + "이름" + "</td>"+
+					       "<td>" + "제목" + "</td>"+
+					       "<td>" + "날짜" + "</td>"+
+					       "<td>" + "히트" + "</td>"+
+					       "<td>" + "삭제" + "</td>"
+				}).appendTo("#list-table")
+
+				$(result).each(function(){
+						htmls += '<tr>';
+						htmls += '<td>'+ this.bid + '</td>';
+						htmls += '<td>'+ this.bname + '</td>';
+						htmls += '<td>'
+						for(var i=0; i < this.bindent; i++) { //for 문은 시작하는 숫자와 종료되는 숫자를 적고 증가되는 값을 적어요. i++ 은 1씩 증가 i+2 는 2씩 증가^^
+							htmls += '[Re]'
+						}
+						htmls += '<a href="/content_view?bid=' + this.bid + '">' + this.btitle + '</a></td>';
+						htmls += '<td>'+ this.bdate + '</td>';
+						htmls += '<td>'+ this.bhit + '</td>';
+						htmls += '<td>'+ '<input id=' + this.bid + " type='button' class='btn_delete' value='삭제'>" + '</td>';
+						htmls += '</tr>';
+				});   //each end
+
+						htmls+='<tr>';
+						htmls+='<td colspan="5"> <a href="/write_view">글작성</a> </td>';
+						htmls+='</tr>';
+
+			            $("#list-table").append(htmls);
+
+			}, 
+			error : function(xhr, textStatus, errorThrown){ 
+			        alert(xhr);
+			        alert(textStatus);  
+			        alert(errorThrown);
+		    }
+		});
+	});
+
+</script>
+
+<script type="text/javascript">
+	//삭제 버튼 처리
+	$(document).on("click","#list-table .btn_delete",function(){
+
+		$(this).parent().parent().remove();
+
+		$.ajax({
+			type: "DELETE",
+			url : "/boards/" + $(this).attr("id"), //http://localhost:8282/boards/1155
+			success : function(result) {
+				console.log(result);
+
+			},
+			error : function(xhr, textStatus, errorThrown){
+				alert(xhr);
+				alert(textStatus);
+				alert(errorThrown);
+		    }
+		});
+	});
+</script>
+
+</head>
+
+<body>
+	<table id="list-table" width="500" border="1">
+	</table>
+</body>
+
+</html>
